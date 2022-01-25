@@ -1,43 +1,9 @@
+import { useState } from 'react'
 import config from '../config.json'
+import { useRouter } from 'next/router'
 import { Box, Image, Button, Text, TextField, Icon } from '@skynexui/components'
 
-const GlobalStyle = () => {
-
-    return (
-        <>
-            <style global jsx>{`
-                @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
-            
-                *{
-                    margin: 0;
-                    padding: 0;
-                    box-sizing: border-box;
-                    list-style: none;
-                }
-
-                html, body, #__next {
-                    min-height: 100vh;
-                    display: flex;
-                    flex: 1;
-                    font-family: 'Pacifico', cursive;
-                }
-
-                #__next {
-                    flex: 1;
-                  }
-                  #__next > * {
-                    flex: 1;
-                  }
-
-            `}</style>
-        </>
-    )
-
-}
-
 const Title = ({ children, tag }) => {
-
-    console.log(children)
 
     const Tag = tag || 'h1'
 
@@ -64,14 +30,14 @@ const Title = ({ children, tag }) => {
     )
 }
 
-
 const HomePage = () => {
 
-    const username = 'SilvasGabriel'
+    //const username = 'SilvasGabriel'
+    const [username, setUsername] = useState('SilvasGabriel')
+    const routes = useRouter()
 
     return (
         <>
-            <GlobalStyle />
             <Box
                 styleSheet={{
                     display: 'flex',
@@ -100,6 +66,7 @@ const HomePage = () => {
                         margin: '1rem',
                         boxShadow: ' 0 0.125rem 0.625rem 0 rgb( 0 0 0 / 20%)',
                         backgroundColor: config.theme.colors.neutrals[700],
+                        
                     }}
                 >
                     {/** Formulário */}
@@ -115,6 +82,11 @@ const HomePage = () => {
                             },
                             textAlign: 'center',
                             marginBottom: '2rem',
+                        }}
+                        onSubmit={(e) => {
+                            e.preventDefault()
+                            console.log('Submetido!')
+                            routes.push('/chat')
                         }}
                     >
 
@@ -153,11 +125,14 @@ const HomePage = () => {
                             styleSheet={{
                                 fontFamily: 'Open Sans, sans-serif',
                             }}
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value) }
                         />
 
                         <Button
                             type='submit'
                             label='Entrar'
+                            disabled={username.length < 2}
                             fullWidth
                             buttonColors={{
                                 contrastColor: config.theme.colors.neutrals['000'],
