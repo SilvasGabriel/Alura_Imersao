@@ -17,6 +17,7 @@ const GlobalStyle = () => {
                     display: flex;
                     flex: 1;
                     font-family: 'Pacifico', cursive;
+                    overflow: hidden;
                 }
 
                 #__next {
@@ -33,7 +34,7 @@ const GlobalStyle = () => {
 }
 
 const MyApp = ({Component, pageProps}) => {
-    console.log('roda em todas as páginas!')
+    //console.log('roda em todas as páginas!')
     return(
         <>
         <GlobalStyle/>

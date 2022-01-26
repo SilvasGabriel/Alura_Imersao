@@ -33,7 +33,8 @@ const Title = ({ children, tag }) => {
 const HomePage = () => {
 
     //const username = 'SilvasGabriel'
-    const [username, setUsername] = useState('SilvasGabriel')
+    const [username, setUsername] = useState('')
+    const [notFound, setNotFound] = useState('')
     const routes = useRouter()
 
     return (
@@ -66,7 +67,7 @@ const HomePage = () => {
                         margin: '1rem',
                         boxShadow: ' 0 0.125rem 0.625rem 0 rgb( 0 0 0 / 20%)',
                         backgroundColor: config.theme.colors.neutrals[700],
-                        
+
                     }}
                 >
                     {/** Formulário */}
@@ -95,8 +96,8 @@ const HomePage = () => {
                                 label="Icon Component"
                                 name="FaMugHot"
                                 size="4ch"
-                            />  
-                        </Title>    
+                            />
+                        </Title>
 
                         <Text
                             vatiant="body3"
@@ -126,7 +127,10 @@ const HomePage = () => {
                                 fontFamily: 'Open Sans, sans-serif',
                             }}
                             value={username}
-                            onChange={(e) => setUsername(e.target.value) }
+                            onChange={(e) =>{ 
+                                setUsername(e.target.value)
+                                setNotFound('Usuário não encontrado!')
+                            }}
                         />
 
                         <Button
@@ -148,13 +152,13 @@ const HomePage = () => {
 
                     {/*Área da Foto*/}
 
-                    <Box 
+                    <Box
                         styleSheet={{
-                            display:'flex',
-                            flexDirection:'column',
-                            alignItems:'center',
-                            maxWidth:'12.5rem',
-                            padding:'1rem',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            maxWidth: '12.5rem',
+                            padding: '1rem',
                             backgroundColor: config.theme.colors.neutrals[700],
                             border: '0.063rem solid',
                             borderColor: config.theme.colors.primary['050'],
@@ -163,28 +167,60 @@ const HomePage = () => {
                             minHeigth: '15rem',
                         }}
                     >
-                    
-                        <Image
-                            styleSheet={{
-                                borderRadius: '50%',
-                                marginBottom: '1rem',
-                            }}
-                            src={`https://github.com/${username}.png`}
-                        />
 
-                        <Text
-                            variant="body4"
-                            styleSheet={{
-                                color: config.theme.colors.neutrals['100'],
-                                backgroundColor: config.theme.colors.neutrals[700],
-                                padding: '0.1875rem 0.625rem',
-                                borderRadius: '62.5rem',
-                                fontSize: '1.4rem',
-                                fontFamily:'',
-                            }}
-                        >
-                            {username}
-                        </Text>
+                        {username.length < 2 ? (
+                            <>
+
+                                <Image
+                                    styleSheet={{
+                                        borderRadius: '50%',
+                                        marginBottom: '1rem',
+                                    }}
+                                    src={`https://cdn.pixabay.com/photo/2014/04/03/10/01/cup-309641_960_720.png`}
+                                />
+
+                                <Text
+                                    variant="body4"
+                                    styleSheet={{
+                                        color: config.theme.colors.neutrals['100'],
+                                        backgroundColor: config.theme.colors.neutrals[700],
+                                        padding: '0.1875rem 0.625rem',
+                                        borderRadius: '62.5rem',
+                                        fontSize: '0.85rem',
+                                        fontFamily: '',
+                                    }}
+                                >
+                                    {notFound}
+                                </Text>
+
+                            </>
+                        ) : (
+                            <>
+                            
+                                <Image
+                                    styleSheet={{
+                                        borderRadius: '50%',
+                                        marginBottom: '1rem',
+                                    }}
+                                    src={`https://github.com/${username}.png`}
+                                />
+
+                                <Text
+                                    variant="body4"
+                                    styleSheet={{
+                                        color: config.theme.colors.neutrals['100'],
+                                        backgroundColor: config.theme.colors.neutrals[700],
+                                        padding: '0.1875rem 0.625rem',
+                                        borderRadius: '62.5rem',
+                                        fontSize: '1.4rem',
+                                        fontFamily: '',
+                                    }}
+                                >
+                                    {username}
+                                </Text>
+
+                            </>
+                        )}
 
                     </Box>
 
