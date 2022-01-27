@@ -1,9 +1,15 @@
-import { Box, Image, Button, Text, TextField,Icon } from '@skynexui/components'
-import { useState } from 'react';
+import { Box, Image, Button, Text, TextField, Icon } from '@skynexui/components'
+import { useState, useEffect } from 'react';
 import config from '../config.json'
+import { createClient } from '@supabase/supabase-js'
+
+
+const supabase_key = process.env.SUPABASE_ANON_KEY
+const supabase_url = process.env.SUPABASE_URL
+const supabaseClient = createClient(supabase_url, supabase_key)
+
 
 const Chat = () => {
-
     /*
         Usuário
             -> Digita no campo textarea
@@ -12,27 +18,60 @@ const Chat = () => {
 
         Dev
             [x] Campo criado
-            [ ] usar o onChange / useState(ter if para mudar variavel) 
-            [ ] Lista mensagens
+            [x] usar o onChange / useState(ter if para mudar variavel) 
+            [x] Lista mensagens
     */
 
     const [mensagem, setMensagem] = useState('')
     const [listaMensagens, setListaMensagens] = useState([])
 
+
+    useEffect(() => {
+
+        const dadosSupabase = supabaseClient
+            .from('mensagens')
+            .select('*')
+            .order('id', {ascending: false})
+            .then( ({ data }) => {
+                //console.log('Dados da consulta:', dados)
+                setListaMensagens(data)
+            })
+
+    }, []);
+
+
     const handleNovaMensagem = (novaMensagem) => {
 
         const mensagem = {
 
-            id: listaMensagens.length + 1,
-            de: 'vanessaantonini',
-            textoMessage: novaMensagem,
+            //id: listaMensagens.length + 1,
+            de: 'vanessametonini',
+            texto: novaMensagem,
 
         }
+
+        supabaseClient
+            .from('mensagens')
+            .insert([
+                mensagem
+            ])
+            .then(({data})=>{
+                console.log('O que vem daqui?', data)
+                setListaMensagens([
+                    data[0],
+                    ...listaMensagens,
+                ])
+            })
+        
+        /*
+                    ^
+                    |
 
         setListaMensagens([
             ...listaMensagens,
             mensagem,
         ])
+        */
         setMensagem('')
 
     }
@@ -83,7 +122,7 @@ const Chat = () => {
                     }}
                 >
 
-                    <MessageList mensagens={listaMensagens} />
+                    <MessageList mensagens={listaMensagens} setListaMensagens={setListaMensagens} />
                     {/*listaMensagens.map((message) => {
                     return(
                         <li key={message.id}>
@@ -172,10 +211,16 @@ const Header = () => {
 
 }
 
-const MessageList = ({ mensagens }) => {
+const MessageList = ({ mensagens, setListaMensagens }) => {
 
-    //console.log(mensagens)
-    
+    const deletar = (msg) => {
+
+        const deletar = mensagens.filter(mensagem => mensagem.id !== msg)
+
+        setListaMensagens([...deletar])
+    }
+
+
     return (
 
         <Box
@@ -221,7 +266,7 @@ const MessageList = ({ mensagens }) => {
                                     display: 'inline-block',
                                     marginRight: '0.5rem',
                                 }}
-                                src={`https://github.com/vanessametonini.png`}
+                                src={`https://github.com/${mensagemAtual.de}.png`}
                             />
 
                             <Text tag='strong'>
@@ -239,9 +284,22 @@ const MessageList = ({ mensagens }) => {
                                 {(new Date().toLocaleDateString())}
                             </Text>
 
+                            <Icon
+                                name="FaTrash"
+                                size="1.6ch"
+                                styleSheet={{
+                                    float: 'right',
+                                    backgroundColor: config.theme.colors.neutrals[600],
+                                }}
+                                onClick={(e) => {
+                                    e.preventDefault()
+                                    deletar(mensagemAtual.id)
+                                }}
+                            />
+
                         </Box>
 
-                        {mensagemAtual.textoMessage}
+                        {mensagemAtual.texto}
 
                     </Text>
 
