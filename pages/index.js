@@ -86,8 +86,7 @@ const HomePage = () => {
                         }}
                         onSubmit={(e) => {
                             e.preventDefault()
-                            console.log('Submetido!')
-                            routes.push('/chat')
+                            routes.push(`/chat?username=${username}`)
                         }}
                     >
 

@@ -23,9 +23,18 @@ const GlobalStyle = () => {
                 #__next {
                     flex: 1;
                   }
-                  #__next > * {
+                #__next > * {
                     flex: 1;
-                  }
+                }
+
+                .scroll::-webkit-scrollbar {
+                    display: none;
+                }
+
+                .scroll{
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                }
 
             `}</style>
         </>

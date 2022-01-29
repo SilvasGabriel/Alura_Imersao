@@ -1,12 +1,25 @@
 import { Box, Image, Button, Text, TextField, Icon } from '@skynexui/components'
 import { useState, useEffect } from 'react';
 import config from '../config.json'
+import { useRouter } from 'next/router'
 import { createClient } from '@supabase/supabase-js'
+import Sendsticker from '../src/components/sendsticker'
 
 
 const supabase_key = process.env.SUPABASE_ANON_KEY
 const supabase_url = process.env.SUPABASE_URL
 const supabaseClient = createClient(supabase_url, supabase_key)
+
+const RealTimeMessage = (addMessage) => {
+    return (
+        supabaseClient
+            .from('mensagens')
+            .on('INSERT', (resposta) => {
+                addMessage(resposta.new)
+            })
+            .subscribe()
+    )
+}
 
 
 const Chat = () => {
@@ -23,19 +36,42 @@ const Chat = () => {
     */
 
     const [mensagem, setMensagem] = useState('')
-    const [listaMensagens, setListaMensagens] = useState([])
-
+    const [listaMensagens, setListaMensagens] = useState([
+        /* 
+         {
+             id: 1,
+             de: 'SilvasGabriel',
+             texto: ':sticker: https://i.pinimg.com/originals/0b/1c/23/0b1c2307c83e1ebdeed72e41b9a058ad.gif'
+         }
+         */
+    ])
+    const routes = useRouter()
+    const userLogged = routes.query.username
 
     useEffect(() => {
 
         const dadosSupabase = supabaseClient
             .from('mensagens')
             .select('*')
-            .order('id', {ascending: false})
-            .then( ({ data }) => {
+            .order('id', { ascending: false })
+            .then(({ data }) => {
                 //console.log('Dados da consulta:', dados)
                 setListaMensagens(data)
             })
+
+        RealTimeMessage((newMessage) => {
+
+            //handleNovaMensagem(newMessage)
+            setListaMensagens((currentListValue) => {
+                return (
+                    [
+                        newMessage,
+                        ...currentListValue,
+                    ]
+                )
+            })
+
+        })
 
     }, []);
 
@@ -45,7 +81,7 @@ const Chat = () => {
         const mensagem = {
 
             //id: listaMensagens.length + 1,
-            de: 'vanessametonini',
+            de: userLogged,
             texto: novaMensagem,
 
         }
@@ -55,18 +91,13 @@ const Chat = () => {
             .insert([
                 mensagem
             ])
-            .then(({data})=>{
-                console.log('O que vem daqui?', data)
-                setListaMensagens([
-                    data[0],
-                    ...listaMensagens,
-                ])
+            .then(({ data }) => {
+                //console.log('O que vem daqui?', data)
             })
-        
+
         /*
                     ^
                     |
-
         setListaMensagens([
             ...listaMensagens,
             mensagem,
@@ -165,6 +196,11 @@ const Chat = () => {
                             }}
                         />
 
+                        <Sendsticker onStickerClick={(sticker) => {
+                            console.log('[USANDO O COMPONENTE] Salva no supabase por favor!', sticker)
+                            handleNovaMensagem(`:sticker: ${sticker}`)
+                        }} />
+
                     </Box>
 
                 </Box>
@@ -213,26 +249,19 @@ const Header = () => {
 
 const MessageList = ({ mensagens, setListaMensagens }) => {
 
-    const deletar = (msg) => {
-
-        const deletar = mensagens.filter(mensagem => mensagem.id !== msg)
-
-        setListaMensagens([...deletar])
-    }
-
-
     return (
 
         <Box
             tag='ul'
             styleSheet={{
-                overflow: 'hidden',
+                overflow: 'scroll',
                 display: 'flex',
                 flexDirection: 'column-reverse',
                 flex: 1,
                 color: config.theme.colors.neutrals[200],
                 marginBottom: '1rem',
             }}
+            className='scroll'
         >
 
             {mensagens.map((mensagemAtual) => {
@@ -284,22 +313,19 @@ const MessageList = ({ mensagens, setListaMensagens }) => {
                                 {(new Date().toLocaleDateString())}
                             </Text>
 
-                            <Icon
-                                name="FaTrash"
-                                size="1.6ch"
-                                styleSheet={{
-                                    float: 'right',
-                                    backgroundColor: config.theme.colors.neutrals[600],
-                                }}
-                                onClick={(e) => {
-                                    e.preventDefault()
-                                    deletar(mensagemAtual.id)
-                                }}
-                            />
-
                         </Box>
 
-                        {mensagemAtual.texto}
+                        {/*Condicional: {mensagemAtual.texto.startsWith(':sticker:').toString()}*/}
+
+                        {mensagemAtual.texto.startsWith(':sticker:') ? (
+
+                            <Image src={mensagemAtual.texto.replace(':sticker:', '')} />
+
+                        ) : (
+
+                            mensagemAtual.texto
+
+                        )}
 
                     </Text>
 
